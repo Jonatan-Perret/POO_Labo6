@@ -1,0 +1,3 @@
+[submodule "simple-stack"]
+	path = simple-stack
+	url = git@github.com:Jonatan-Perret/simple-stack.git
