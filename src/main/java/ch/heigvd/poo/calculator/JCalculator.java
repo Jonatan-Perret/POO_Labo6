@@ -37,7 +37,7 @@ public class JCalculator extends JFrame {
         // Modifier un composant liste, JList.setListData(Object[] tableau)
         jNumber.setText(state.getError());
         if (!state.isEmpty()) {
-            jStack.setListData(state.toString().split("\n"));
+            jStack.setListData(state.getStackStringArray());
         } else {
             jStack.setListData(new String[]{"< empty stack >"});
         }

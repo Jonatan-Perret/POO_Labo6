@@ -40,6 +40,7 @@ class Sub extends Operator {
             double number1 = this.state.popNumber();
             double number2 = this.state.popNumber();
             this.state.pushNumber(number1 - number2);
+            System.out.println("Sub: " + number1 + " - " + number2 + " = " + (number1 - number2));
         } catch (Exception e) {
             this.state.setError("Error: not enough numbers in the stack");
         }
@@ -173,7 +174,7 @@ class Clear extends Operator {
     }
 
     void execute() {
-        System.out.println("Clear");
+        this.state.clear();
     }
 }
 
