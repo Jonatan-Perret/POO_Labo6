@@ -1,249 +1,409 @@
 package ch.heigvd.poo.calculator;
 
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The abstract class Operator
+ * represents a mathematical operator in a calculator. It holds a reference to
+ * the current state of the calculator and provides an abstract method execute()
+ * that must be implemented by subclasses to perform the specific operation.
+ */
 abstract class Operator {
 
     protected State state;
 
-    public Operator(State state) {
+    Operator(State state) {
         this.state = state;
     }
 
     abstract void execute();
 }
 
-class Add extends Operator {
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The UnaryOperator class is an
+ * abstract class that extends the Operator class. It represents an operator
+ * that performs an operation on a single operand.
+ *
+ * @param state the state of the calculator
+ */
+abstract class UnaryOperator extends Operator {
 
-    public Add(State state) {
+    UnaryOperator(State state) {
+        super(state);
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * Abstract class representing a binary
+ * operator in a calculator. A binary operator performs an operation on two
+ * operands. This class extends the Operator class and requires a State object
+ * to be passed to its constructor.
+ */
+abstract class BinaryOperator extends Operator {
+
+    BinaryOperator(State state) {
+        super(state);
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Backspace class represents a
+ * unary operator that removes the last digit from the current state.
+ *
+ * <p>
+ * This class extends the UnaryOperator class and overrides the execute method
+ * to perform the backspace operation by calling the popDigit method on the
+ * state.
+ * </p>
+ *
+ * @see UnaryOperator
+ * @see State#popDigit()
+ */
+class Backspace extends UnaryOperator {
+
+    Backspace(State s) {
+        super(s);
+    }
+
+    @Override
+    void execute() {
+        state.popDigit();
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The CE class represents a unary
+ * operator that clears the current value in the calculator state. It extends
+ * the UnaryOperator class and overrides the execute method to set the current
+ * value to 0.
+ */
+class CE extends UnaryOperator {
+
+    CE(State s) {
+        super(s);
+    }
+
+    @Override
+    void execute() {
+        state.setCurrentValue(0);
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The C class represents a unary
+ * operator that clears the state. It extends the UnaryOperator class and
+ * overrides the execute method to clear the state.
+ */
+class C extends UnaryOperator {
+
+    C(State s) {
+        super(s);
+    }
+
+    @Override
+    void execute() {
+        state.clear();
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Number class represents a unary
+ * operator that appends a digit to the current state. It extends the
+ * UnaryOperator class and overrides the execute method to append the specified
+ * number.
+ */
+class Number extends UnaryOperator {
+
+    int number;
+
+    Number(State s, int number) {
+        super(s);
+        this.number = number;
+    }
+
+    @Override
+    void execute() {
+        state.appendDigit(number);
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The ChangeSign class is a type of
+ * UnaryOperator that changes the sign of the current value in the calculator
+ * state. It appends the current value to the stack, sets the current value to
+ * -1, and then multiplies the heads of the stack.
+ */
+class ChangeSign extends UnaryOperator {
+
+    ChangeSign(State s) {
+        super(s);
+    }
+
+    @Override
+    void execute() {
+        state.appendCurrentValueInStack();
+        state.setCurrentValue(-1);
+        state.multiplyHeads();
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Point class represents a unary
+ * operator that appends a decimal point to the current state. It extends the
+ * UnaryOperator class and overrides the execute method to perform the specific
+ * operation.
+ */
+class Point extends UnaryOperator {
+
+    Point(State s) {
+        super(s);
+    }
+
+    @Override
+    void execute() {
+        state.appendPoint();
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Div class represents a division
+ * operation in a calculator. It extends the BinaryOperator class and overrides
+ * the execute method to perform the division operation on the calculator's
+ * state. If an ArithmeticException occurs (e.g., division by zero), the current
+ * value in the state is set to 0.
+ */
+class Div extends BinaryOperator {
+
+    Div(State state) {
         super(state);
     }
 
+    @Override
     void execute() {
         try {
-            double number1 = this.state.popNumber();
-            double number2 = this.state.popNumber();
-            this.state.pushNumber(number1 + number2);
-            System.err.println("Add: " + number1 + " + " + number2 + " = " + (number1 + number2));
-        } catch (Exception e) {
-            this.state.setError("Error: not enough numbers in the stack");
+            state.dividedHeads();
+        } catch (ArithmeticException e) {
+            state.setCurrentValue(0);
         }
     }
 }
 
-class Sub extends Operator {
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Multi class represents a
+ * multiplication operation in the calculator. It extends the BinaryOperator
+ * class and overrides the execute method to perform the multiplication of the
+ * heads of the state.
+ */
+class Multi extends BinaryOperator {
 
-    public Sub(State state) {
-        super(state);
+    Multi(State s) {
+        super(s);
     }
 
+    @Override
     void execute() {
+        state.multiplyHeads();
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Sub class represents a
+ * subtraction operation in the calculator. It extends the BinaryOperator class
+ * and overrides the execute method to perform the subtraction operation on the
+ * calculator's state.
+ */
+class Sub extends BinaryOperator {
+
+    Sub(State s) {
+        super(s);
+    }
+
+    @Override
+    void execute() {
+        state.subtractHeads();
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Add class represents a binary
+ * operator that performs an addition operation. It extends the BinaryOperator
+ * class and overrides the execute method to perform the addition by calling the
+ * addHeads method on the state object.
+ */
+class Add extends BinaryOperator {
+
+    Add(State s) {
+        super(s);
+    }
+
+    @Override
+    void execute() {
+        state.addHeads();
+    }
+}
+
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Inv class represents a unary
+ * operator that performs the inversion operation. It extends the UnaryOperator
+ * class and overrides the execute method to perform the inversion of the
+ * current value in the calculator's state.
+ *
+ * The execute method saves the current value, sets the current value to 1,
+ * appends the current value to the stack, restores the saved value, and then
+ * performs the division operation. If an ArithmeticException occurs (e.g.,
+ * division by zero), it sets the current value to 0.
+ */
+class Inv extends UnaryOperator {
+
+    Inv(State s) {
+        super(s);
+    }
+
+    @Override
+    void execute() {
+        double tmp = state.getCurrentValue();
+        state.setCurrentValue(1);
+        state.appendCurrentValueInStack();
+        state.setCurrentValue(tmp);
         try {
-            double number1 = this.state.popNumber();
-            double number2 = this.state.popNumber();
-            this.state.pushNumber(number1 - number2);
-            System.out.println("Sub: " + number1 + " - " + number2 + " = " + (number1 - number2));
-        } catch (Exception e) {
-            this.state.setError("Error: not enough numbers in the stack");
+            state.dividedHeads();
+        } catch (ArithmeticException e) {
+            state.setCurrentValue(0);
         }
     }
 }
 
-class Mul extends Operator {
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Square class represents a unary
+ * operator that squares the current value in the calculator's state. It extends
+ * the UnaryOperator class.
+ */
+class Square extends UnaryOperator {
 
-    public Mul(State state) {
+    Square(State state) {
         super(state);
     }
 
+    @Override
     void execute() {
-        try {
-            double number1 = this.state.popNumber();
-            double number2 = this.state.popNumber();
-            this.state.pushNumber(number1 * number2);
-        } catch (Exception e) {
-            this.state.setError("Error: not enough numbers in the stack");
-        }
+        double tmp = state.getCurrentValue();
+        state.appendCurrentValueInStack();
+        state.setCurrentValue(tmp);
+        state.multiplyHeads();
     }
 }
 
-class Div extends Operator {
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Sqrt class represents a unary
+ * operator that calculates the square root of the current value in the
+ * calculator's state. It extends the UnaryOperator class and overrides the
+ * execute method to perform the square root operation.
+ */
+class Sqrt extends UnaryOperator {
 
-    public Div(State state) {
-        super(state);
+    Sqrt(State s) {
+        super(s);
     }
 
+    @Override
     void execute() {
-        try {
-            double number1 = this.state.popNumber();
-            double number2 = this.state.popNumber();
-            this.state.pushNumber(number1 / number2);
-        } catch (Exception e) {
-            this.state.setError("Error: not enough numbers in the stack");
-        }
+        double tmp = state.getCurrentValue();
+        tmp = Math.sqrt(tmp);
+        state.setCurrentValue(tmp);
     }
 }
 
-class Point extends Operator {
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The Enter class represents a unary
+ * operator that appends the current value in the state to the stack when
+ * executed.
+ *
+ * This class extends the UnaryOperator class and overrides the execute method
+ * to perform the specific operation of appending the current value in the state
+ * to the stack.
+ *
+ * @see UnaryOperator
+ */
+class Enter extends UnaryOperator {
 
-    public Point(State state) {
-        super(state);
+    Enter(State s) {
+        super(s);
     }
 
+    @Override
     void execute() {
-        System.out.println("Point");
+        state.appendCurrentValueInStack();
     }
 }
 
-class Enter extends Operator {
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The MemoryStore class is a type of
+ * UnaryOperator that stores the current state into memory when executed.
+ *
+ * <p>
+ * This class extends the UnaryOperator class and overrides the execute method
+ * to perform the memory store operation using the provided State object.</p>
+ *
+ * <p>
+ * Usage example:</p>
+ * <pre>
+ *     State state = new State();
+ *     MemoryStore memoryStore = new MemoryStore(state);
+ *     memoryStore.execute(); // Stores the current state into memory
+ * </pre>
+ *
+ * @see UnaryOperator
+ * @see State
+ */
+class MemoryStore extends UnaryOperator {
 
-    public Enter(State state) {
-        super(state);
+    MemoryStore(State s) {
+        super(s);
     }
 
+    @Override
     void execute() {
-        System.out.println("Enter");
+        state.memoryStore();
     }
 }
 
-class Sqrt extends Operator {
+/**
+ * @author Marcuard Adrien, Perret Jonatan 
+ * The MemoryRecall class represents a
+ * unary operator that recalls the value stored in memory. It extends the
+ * UnaryOperator class and overrides the execute method to perform the memory
+ * recall operation.
+ *
+ * Constructor: - MemoryRecall(State s): Initializes the MemoryRecall operator
+ * with the given state.
+ *
+ * Methods: - void execute(): Executes the memory recall operation by invoking
+ * the memoryRecall method on the state.
+ */
+class MemoryRecall extends UnaryOperator {
 
-    public Sqrt(State state) {
-        super(state);
+    MemoryRecall(State s) {
+        super(s);
     }
 
+    @Override
     void execute() {
-        try {
-            double number = this.state.popNumber();
-            this.state.pushNumber(Math.sqrt(number));
-        } catch (Exception e) {
-            this.state.setError("Error: not enough numbers in the stack");
-        }
-    }
-}
-
-class Square extends Operator {
-
-    public Square(State state) {
-        super(state);
-    }
-
-    void execute() {
-        try {
-            double number = this.state.popNumber();
-            this.state.pushNumber(number * number);
-        } catch (Exception e) {
-            this.state.setError("Error: not enough numbers in the stack");
-        }
-    }
-}
-
-class Inverse extends Operator {
-
-    public Inverse(State state) {
-        super(state);
-    }
-
-    void execute() {
-        try {
-            double number = this.state.popNumber();
-            this.state.pushNumber(1 / number);
-        } catch (Exception e) {
-            this.state.setError("Error: not enough numbers in the stack");
-        }
-    }
-}
-
-class Sign extends Operator {
-
-    public Sign(State state) {
-        super(state);
-    }
-
-    void execute() {
-        try {
-            double number = this.state.popNumber();
-            this.state.pushNumber(-number);
-        } catch (Exception e) {
-            this.state.setError("Error: not enough numbers in the stack");
-        }
-    }
-}
-
-class Clear extends Operator {
-
-    public Clear(State state) {
-        super(state);
-    }
-
-    void execute() {
-        this.state.clear();
-    }
-}
-
-class ClearError extends Operator {
-
-    public ClearError(State state) {
-        super(state);
-    }
-
-    void execute() {
-        System.out.println("ClearError");
-    }
-}
-
-class Backspace extends Operator {
-
-    public Backspace(State state) {
-        super(state);
-    }
-
-    void execute() {
-        try {
-            this.state.popNumber();
-        } catch (Exception e) {
-            this.state.setError("Error: not enough numbers in the stack");
-        }
-    }
-}
-
-class Number extends Operator {
-
-    public Number(State state) {
-        super(state);
-    }
-
-    private int value;
-
-    Number(State state, int value) {
-        super(state);
-        this.value = value;
-    }
-
-    void execute() {
-        try{
-            this.state.pushNumber(this.value);
-        } catch (Exception e) {
-            this.state.setError("Error: not enough numbers in the stack");
-        }
-    }
-}
-
-class MemoryRecall extends Operator {
-
-    public MemoryRecall(State state) {
-        super(state);
-    }
-
-    void execute() {
-        System.out.println("MemoryRecall");
-    }
-}
-
-class MemoryStore extends Operator {
-
-    public MemoryStore(State state) {
-        super(state);
-    }
-
-    void execute() {
-        System.out.println("MemoryStore");
+        state.memoryRecall();
     }
 }
